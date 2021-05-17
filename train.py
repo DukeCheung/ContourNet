@@ -1,5 +1,6 @@
 import os
 import torch
+import torch.nn as nn
 from config import Config
 from torch.utils.data import DataLoader
 from torchvision import models
@@ -8,12 +9,17 @@ from dataloader import ImageDataset
 import numpy as np
 
 args = Config()
-os.environ['CUDA_VISIBLE_DEVICES'] = '4'
+os.environ['CUDA_VISIBLE_DEVICES'] = '6'
 
 if __name__ == '__main__':
     device = torch.device('cuda')
-    model = models.resnet50(pretrained=False).to(device)
-    model.load_state_dict(torch.load(args.param_file))
+    model = models.resnet50(pretrained=False)
+    fc_features = model.fc.in_features
+    model.fc = nn.Linear(fc_features, 3)
+    model.to(device)
+
+    # model.load_state_dict(torch.load(args.param_file))
+
     EPOCHS = args.epochs
     optimizer = torch.optim.Adam(model.parameters(), weight_decay=args.weight_decay, lr=args.learning_rate)
     min_loss = float('inf')

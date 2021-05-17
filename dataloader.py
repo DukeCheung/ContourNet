@@ -10,13 +10,16 @@ class ImageDataset(Dataset):
         super(Dataset, self).__init__()
         self.images = []
         self.labels = []
+        self.file_name = []
         for root, sub_dir, files in os.walk(file_path):
             for file in files:
                 img = cv2.imread(os.path.join(root, file))
                 img = np.float32(cv2.resize(img, (224, 224))) / 255
+                self.file_name.append(os.path.join(root, file))
                 self.images.append(torch.from_numpy(img))
-                label = np.zeros(1000, dtype=np.float32)
-                label[int(file.split('.')[0])] = 1.0
+                file = file.split('].')[0].split('[')[1].split(',')
+                label = [float(i) for i in file]
+                label = np.array(label, dtype=np.float32)
                 self.labels.append(torch.from_numpy(label))
 
     def __len__(self):
